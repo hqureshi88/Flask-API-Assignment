@@ -1,6 +1,5 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 from data import order
-import math
 from datetime import datetime
 
 app = Flask(__name__)
