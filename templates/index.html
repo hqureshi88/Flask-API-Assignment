@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Orders</h1>
+  {% for id, name in template_order.items() %}
+    <!-- Use url_for to pass the id variable -->
+    <p><a href="{{url_for('orders', id=id)}}">{{ name.package.sender.name }}</a></p>
+  {% endfor %}
+
+  <form action="/" method="POST">
+    <h3>Add Sender details</h3>
+    <p>
+      <label for="name">Name:</label><br>
+      <input type="text" name="name"/>
+    </p>
+    <p>
+      <label for="street_address">Street Address:</label><br>
+      <textarea name="street_address"></textarea>
+    </p>
+    <p>
+      <label for="city">City:</label><br>
+      <textarea name="city"></textarea>
+    </p>
+    <!-- <p>
+      <label for="country_code">Country Code:</label>
+      <textarea name="country_code"></textarea>
+    </p> -->
+    <h3>Add Recipient details</h3>
+    <p>
+      <label for="r_name">Name:</label><br>
+      <input type="text" name="r_name"/>
+    </p>
+    <p>
+      <label for="r_street_address">Street Address:</label><br>
+      <textarea name="r_street_address"></textarea>
+    </p>
+    <p>
+      <label for="r_city">City:</label><br>
+      <textarea name="r_city"></textarea>
+    </p>
+    <p>
+      <label for="r_country_code">Country Code:</label><br>
+      <select name="r_country_code">
+        {% for key in country_list %}
+        <option value="{{key}}">{{key}}</option>
+        {% endfor %}  
+      </select>
+    </p>
+    <h3>Package details</h3>
+    <p>
+      <label for="value">Value:</label><br>
+      <input type="number" name="value"/>
+    </p>
+    <p>
+      <label for="despatch_date">Despatch Date:</label><br>
+      <input type="string" name="despatch_date"/>
+    </p>
+    <p>
+      <label for="contents_declaration">Contents declaration:</label><br>
+      <input type="text" name="contents_declaration"/>
+    </p>
+    <p>
+      <label for="insurance_required">Insurance required?</label><br>
+      <input type="text" name="insurance_required"/>
+    </p>
+    <p>
+      <label for="tracking_reference">Tracking Reference?</label><br>
+      <input type="text" name="tracking_reference"/>
+    </p>
+    <p><input type="submit" name="submit_recipe"/></p>
+  </form>
+{% endblock %}

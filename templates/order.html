@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+  <h3>Sender</h3>
+  <ul>
+    <li>{{ sender_name }}</li>
+    <li>{{ sender_street }}</li>
+    <li>{{ sender_city }}</li>
+    <li>{{ sender_country }}</li>
+  </ul>  
+
+  <h3>Recipient</h3>
+  <ul>
+    <li>{{ recipient_name }}</li>
+    <li>{{ recipient_street }}</li>
+    <li>{{ recipient_city }}</li>
+    <li>{{ recipient_country }}</li>
+  </ul> 
+
+  <h3>Value</h3>
+  <ul>
+    <li>{{ value }}</li>
+  </ul>
+
+  <h3>Despatch date</h3>
+  <ul>
+    <li>{{ despatch_date }}</li>
+  </ul>
+
+  <h3>Contents Declaration</h3>
+  <ul>
+    <li>{{ contents_declaration }}</li>
+  </ul>
+
+  <h3>Tracking Reference</h3>
+  <ul>
+    <li>{{ tracking_reference }}</li>
+  </ul>
+
+  <h3>Charges & delivery acceptance</h3>
+  <ul>
+    <li>accepted at: {{ accepted_at }}</li>
+    <li>insurance provided: {{ insurance_provided }}</li>
+    <li>total insurance charge: {{ total_insurance_charge }}</li>
+    <li>ipt included in charge: {{ ipt_included_in_charge }}</li>
+  </ul>
+{% endblock %}
