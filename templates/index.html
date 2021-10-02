@@ -60,7 +60,8 @@
     </p>
     <p>
       <label for="insurance_required">Insurance required?</label><br>
-      <input type="text" name="insurance_required"/>
+      <input type="radio" name="insurance_required" value="1"/>Yes</input>
+      <input type="radio" name="insurance_required" value="2"/>No</input>
     </p>
     <p>
       <label for="tracking_reference">Tracking Reference?</label><br>
@@ -68,4 +69,5 @@
     </p>
     <p><input type="submit" name="submit_recipe"/></p>
   </form>
+  <p>{{ error }}</p>
 {% endblock %}
