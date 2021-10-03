@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for
-from werkzeug.utils import redirect
+from pydantic.error_wrappers import ErrorWrapper
+# from werkzeug.utils import redirect
 from data import order
 from datetime import datetime
 from pydantic import BaseModel, ValidationError, validator
+import re
 
 app = Flask(__name__)
 
@@ -13,23 +15,29 @@ def index():
 
   def name_must_contain_space(name: str) -> str:
       if ' ' not in name:
-          raise ValueError('must contain a space')
+          raise ValueError('Please enter your full senders and recipients name')
       return name.title()
   
   def address_must_contain_space(address: str) -> str:
       if ' ' not in address:
-          raise ValueError('must contain a space')
+          raise ValueError('Please enter a valid address for both sender and recipient')
       return address
 
   def must_contain_city(city: str) -> str:
         if len(city) == 0:
-            raise ValueError('must enter a city')
+            raise ValueError('Please enter name of city for both sender and recipient')
         return city.title()
   
   def insurance_limit(value: int) -> int:
         if value > 10000:
             raise ValueError('value is greater than £10000, unable to be insured')
         return value
+  
+  def correct_despatch_date(despatch_date: str) -> str:
+        x = re.search("^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$", despatch_date)
+        if not x:
+            raise ValueError('Please enter appropriate date format')
+        return despatch_date
 
   class SenderModel(BaseModel):
     s_name: str
@@ -56,6 +64,7 @@ def index():
     despatch_date: str
 
     _insurance_limit = validator('value', allow_reuse=True)(insurance_limit)
+    _despatch_date = validator('despatch_date', allow_reuse=True)(correct_despatch_date)
     
 
   if "name" in request.form:
@@ -78,8 +87,12 @@ def index():
       )
       # print("accepted")
     except ValidationError as e:
-      print(e)
-      return redirect(url_for('index'))
+      error_output = []
+      for error in e.args[0]:
+        error_output.append(str(error.exc))
+      print(error_output)
+      # return redirect(url_for('index'))
+      return render_template("index.html", error_output = error_output, template_order=order, country_list = country_list)
 
     # declare variables for insurance value and country code
     cost = int(request.form["value"])
@@ -97,9 +110,6 @@ def index():
       if cost < 9:
         cost = 9
     
-    
-    # today = date.today()
-    # today_date = today.strftime('%b-%d-%Y')
     new_id = len(order)+1
     print({new_id: request.form})
     ipt_included_in_charge = cost - (cost/1.12)
