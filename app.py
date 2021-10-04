@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
-from pydantic.error_wrappers import ErrorWrapper
+# from pydantic.error_wrappers import ErrorWrapper
 # from werkzeug.utils import redirect
 from data import order
 from datetime import datetime
@@ -14,14 +14,14 @@ def index():
   country_list = {'GB','FR', 'DE', 'NL', 'BE', 'Other'}
 
   def name_must_contain_space(name: str) -> str:
-      if ' ' not in name:
-          raise ValueError('Please enter your full senders and recipients name')
-      return name.title()
+        if ' ' not in name:
+            raise ValueError('Please enter your full senders and recipients name')
+        return name.title()
   
   def address_must_contain_space(address: str) -> str:
-      if ' ' not in address:
-          raise ValueError('Please enter a valid address for both sender and recipient')
-      return address
+        if ' ' not in address:
+            raise ValueError('Please enter a valid address for both sender and recipient')
+        return address
 
   def must_contain_city(city: str) -> str:
         if len(city) == 0:
@@ -34,10 +34,18 @@ def index():
         return value
   
   def correct_despatch_date(despatch_date: str) -> str:
-        x = re.search("^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$", despatch_date)
+        x = re.search("^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$", despatch_date)
         if not x:
             raise ValueError('Please enter appropriate date format')
+        else: 
+          despatch_d = datetime.strptime(request.form["despatch_date"], '%Y-%m-%d')
+          date_now = datetime.now()
+          no_of_days = abs(despatch_d - date_now).days
+          if no_of_days > 1:
+            raise ValueError('order not accepted as despatch date not today or tomorrow')
         return despatch_date
+
+  # def tracking_reference_check(tracking_reference: str) -> str:
 
   class SenderModel(BaseModel):
     s_name: str
@@ -62,11 +70,13 @@ def index():
   class PackageModel(BaseModel):
     value: int
     despatch_date: str
+    # tracking_reference: str
 
     _insurance_limit = validator('value', allow_reuse=True)(insurance_limit)
     _despatch_date = validator('despatch_date', allow_reuse=True)(correct_despatch_date)
+    # _tracking_reference = validator('tracking_reference', allow_reuse=True)(tracking_reference_check)
     
-
+  error_output = []
   if "name" in request.form:
     try:
       SenderModel(
@@ -74,30 +84,28 @@ def index():
         s_street_address = request.form["street_address"],
         s_city = request.form["city"]
       )
-      # print("accepted")
       RecipientModel(
         r_name = request.form["r_name"],
         r_street_address = request.form["r_street_address"],
         r_city = request.form["r_city"]
       )
-      # print("accepted")
       PackageModel(
         value = int(request.form["value"]),
-        despatch_date = request.form["despatch_date"]
+        despatch_date = request.form["despatch_date"],
+        # tracking_reference = request.form["tracking_reference"]
       )
-      # print("accepted")
     except ValidationError as e:
-      error_output = []
       for error in e.args[0]:
         error_output.append(str(error.exc))
-      print(error_output)
-      # return redirect(url_for('index'))
+      print(e)
       return render_template("index.html", error_output = error_output, template_order=order, country_list = country_list)
+
+    # print(len(error_output))
+    # if len(error_output) == 0:
 
     # declare variables for insurance value and country code
     cost = int(request.form["value"])
     country_delivered = request.form["r_country_code"]
-    
 
     # check if insurance is to be included by customer
     if int(request.form["insurance_required"]) == 1:
@@ -110,8 +118,13 @@ def index():
       if cost < 9:
         cost = 9
     
+    for track_ref in order:
+      print(track_ref)
+
+    # convert despatch date string format to datetime
+ 
     new_id = len(order)+1
-    print({new_id: request.form})
+    # print({new_id: request.form})
     ipt_included_in_charge = cost - (cost/1.12)
     ipt_included_in_charge = round(ipt_included_in_charge, 2)
     dateTimeObj = datetime.now()

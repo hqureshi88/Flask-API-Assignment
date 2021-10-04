@@ -6,9 +6,13 @@
     <p><a href="{{url_for('orders', id=id)}}">{{ name.package.sender.name }}</a></p>
   {% endfor %}
 
+  {% if error_output|length != 0 %}
   {% for error in error_output %}
   <p style="color: red">{{ error }}</p>
   {% endfor %}
+  {% else %}
+  <p></p>
+  {% endif %}
   <form action="/" method="POST">
     <h3>Add Sender details</h3>
     <p>
@@ -54,7 +58,7 @@
       <input type="number" name="value"/>
     </p>
     <p>
-      <label for="despatch_date">Despatch Date (format to be dd-mm-yyyy):</label><br>
+      <label for="despatch_date">Despatch Date (format to be yyyy-mm-dd):</label><br>
       <input type="string" name="despatch_date"/>
     </p>
     <p>
